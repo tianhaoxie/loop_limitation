@@ -166,16 +166,30 @@ struct loop_limitation : torch::CustomClassHolder{
     
 };
 
-TORCH_LIBRARY(loop, m) {
+// TORCH_LIBRARY(loop, m) {
 
-    m.class_<loop_limitation>("loop_limitation")
-        .def (torch::init())
+//     m.class_<loop_limitation>("loop_limitation")
+//         .def (torch::init())
+//         .def ("read_template", &loop_limitation::read_template)
+//         .def ("get_J", &loop_limitation::get_J)
+//         .def ("compute_limitation", &loop_limitation::compute_limitation)
+//         .def ("compute_limitation_t", &loop_limitation::compute_limitation_t)
+//         .def ("init_J", &loop_limitation::init_J)
+//     ;
+
+// }
+
+#include <pybind11/pybind11.h>
+
+namespace py = pybind11;
+
+PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
+    py::class_<loop_limitation>(m, "loop_limitation")
+        .def (py::init())
         .def ("read_template", &loop_limitation::read_template)
         .def ("get_J", &loop_limitation::get_J)
         .def ("compute_limitation", &loop_limitation::compute_limitation)
         .def ("compute_limitation_t", &loop_limitation::compute_limitation_t)
         .def ("init_J", &loop_limitation::init_J)
     ;
-
 }
-
