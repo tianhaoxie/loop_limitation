@@ -30,6 +30,7 @@ struct loop_limitation : torch::CustomClassHolder{
     LLPE::pointCollect* pc;
     LLPE::pointEvaluate* pe;
     LLPE::limitationSurfaceComputation* lsc;
+    torch::Tensor J_tensor;
     loop_limitation(){}
     
     void read_template(const torch::Tensor& m_v,const torch::Tensor& m_f){
@@ -62,11 +63,12 @@ struct loop_limitation : torch::CustomClassHolder{
         lsc -> compute_J(J);
         
         J = (J*S).topRows(template_V.rows());
+        J_tensor = transfer_J(m_v.is_cuda());
         return true;
         
     }
     
-    torch::Tensor get_J(bool cuda){
+    torch::Tensor transfer_J(bool cuda){
         torch::Tensor jacobian=torch::zeros({template_V.rows(),template_V.rows()});
         int row,col;
         double value;
@@ -85,6 +87,9 @@ struct loop_limitation : torch::CustomClassHolder{
             return jacobian;
     }
     
+    torch::Tensor get_J(){
+        return J_tensor;
+    }
 
     torch::Tensor compute_limitation(const torch::Tensor& m_v){
         torch::Tensor v_cpu;
@@ -171,8 +176,8 @@ namespace py = pybind11;
 PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
     py::class_<loop_limitation>(m, "loop_limitation")
         .def (py::init())
-        .def ("get_J", &loop_limitation::get_J)
         .def ("compute_limitation", &loop_limitation::compute_limitation)
         .def ("init_J", &loop_limitation::init_J)
+        .def ("get_J", &loop_limitation::get_J)
     ;
 }
