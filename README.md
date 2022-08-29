@@ -45,6 +45,7 @@ This function returns the limit position of the input vertices, which was evalua
 
 ## Reference
 [1] Stam, J. (1998, July). Evaluation of loop subdivision surfaces. In SIGGRAPH’98 CDROM Proceedings.
+
 [2] Xie, T., Barsky, B., Mudur, S., & Popa, T. (2022). Differentiable Subdivision Surface Fitting. arXiv preprint arXiv:2208.01685.
 
 
