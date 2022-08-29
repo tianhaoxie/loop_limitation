@@ -1,4 +1,4 @@
-# loop_torch_cpp
+# loop_limitation
 
 A pytorch cpp extension for evaluating loop limit subdivision surface which was used in
 
