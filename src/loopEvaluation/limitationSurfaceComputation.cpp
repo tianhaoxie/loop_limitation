@@ -11,14 +11,7 @@
 #include <Eigen/Sparse>
 using namespace std;
 namespace LLPE{
-limitationSurfaceComputation::limitationSurfaceComputation(pointCollect* pc, pointEvaluate* pe,const Eigen::MatrixXi& F):pc_(pc),pe_(pe),F_(F){
-    F_t = torch::zeros({F_.rows(),3},torch::TensorOptions().device(torch::kCUDA, 0));
-    for (int i=0;i<F.rows();i++){
-        F_t.index_put_({i,0},F(i,0));
-        F_t.index_put_({i,1},F(i,1));
-        F_t.index_put_({i,2},F(i,2));
-    }
-}
+limitationSurfaceComputation::limitationSurfaceComputation(pointCollect* pc, pointEvaluate* pe,const Eigen::MatrixXi& F):pc_(pc),pe_(pe),F_(F){}
 limitationSurfaceComputation::~limitationSurfaceComputation(){}
 
 //compute jacobians
@@ -149,65 +142,6 @@ void limitationSurfaceComputation::compute(const Eigen::MatrixXd& V,Eigen::Matri
             }
         }
     }
-    }
-
-torch::Tensor limitationSurfaceComputation::compute_tensor(const torch::Tensor& V){
-    torch::Tensor result = torch::zeros({V.size(0),V.size(1)},torch::TensorOptions().device(torch::kCUDA, 0));
-    Eigen::VectorXi completeFlag = Eigen::VectorXi::Zero(V.size(0));
-    //torch::Tensor facePoints_tensor = torch::zeros(3,torch::TensorOptions().device(torch::kCUDA, 0));
-    std::vector<int> facePoints(F_.cols());
-    Eigen::Vector3d bary[3];
-    bary[0] << 1,0,0;
-    bary[1] << 0,1,0;
-    bary[2] << 0,0,1;
-    torch::Tensor temp;
-
-    for (int i =0; i<F_.rows();++i){
-        std::vector<int> collectedPoints;
-        Eigen::Map<Eigen::RowVectorXi>(&facePoints[0], 1, F_.cols()) = F_.row(i);
-        bool regular = pc_ -> isRegular(facePoints);
-        if ( regular ){
-            pc_ -> collectPointsRegular(facePoints,collectedPoints);
-            for (int j =0;j<3; ++j){
-                if (completeFlag[facePoints[j]]==1)
-                    continue;
-                else{
-                    
-                    temp= pe_ -> evaluateRegularPatch_tensor(V,collectedPoints,  bary[j] );
-                    result.index_put_({facePoints[j],0},temp[0]);
-                    result.index_put_({facePoints[j],1},temp[1]);
-                    result.index_put_({facePoints[j],2},temp[2]);
-                    completeFlag[facePoints[j]]=1;
-                }
-            }
-        }
-        else{
-            
-            if (pc_ -> isEdge(facePoints)){
-                for (int j=0;j<3;++j){
-                    result.index_put_({facePoints[j],0},V.index({facePoints[j],0}));
-                    result.index_put_({facePoints[j],1},V.index({facePoints[j],1}));
-                    result.index_put_({facePoints[j],2},V.index({facePoints[j],2}));
-                    completeFlag[facePoints[j]]=1;
-                }
-                continue;
-            }
-            pc_ -> collectPointsIrregular(facePoints,collectedPoints);
-            for (int j =0;j<3; ++j){
-                if (completeFlag[facePoints[j]]==1)
-                    continue;
-                else{
-                    
-                    temp= pe_ -> evaluateIrregularPatch_tensor(V,collectedPoints,  bary[j]);
-                    result.index_put_({facePoints[j],0},temp[0]);
-                    result.index_put_({facePoints[j],1},temp[1]);
-                    result.index_put_({facePoints[j],2},temp[2]);
-                    completeFlag[facePoints[j]]=1;
-                }
-            }
-        }
-    }
-    return result;
     }
     
     
