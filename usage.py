@@ -16,7 +16,7 @@ f=m.faces_packed()
 lp.init_J(v,f)
 #get Jacobian matrix
 J = lp.get_J()
-print(J.device)
+
 #compute limit position
 l = lp.compute_limitation(v)
 

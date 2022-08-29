@@ -15,4 +15,37 @@ pip install .
 ```
 
 ## Usage
+```
+import torch
+import loop_limitation
+```
+This lib should be imported after torch, otherwise Python will report errors.
+Then this lib can be intialized by the line below.
+```
+lp = loop_limitation.loop_limitation()
+```
+After the mesh file was loaded by any lib, such as Pytorch3D in our example, the constant Jacobian matrix of a certain mesh
+can be computed by
+```
+lp.init_J(v,f)
+```
+where the v is the vertices, and f is the faces. To be noted that the v and f must be torch tensor, but can be either on CUDA or CPU. The result 
+will be on the same device as the input.
+The computed Jacobian matrix can be got by
+```
+J = lp.get_J(True/False)
+```
+where True means that returns a matrix on CUDA.
+```
+l = lp.compute_limitation(v)
+```
+This function returns the limit position of the input vertices, which was evaluated by the method based on Jos Stam's algorithm[1,2].
+
+
+
+## Reference
+[1] Stam, J. (1998, July). Evaluation of loop subdivision surfaces. In SIGGRAPH’98 CDROM Proceedings.
+
+[2] Xie, T., Barsky, B., Mudur, S., & Popa, T. (2022). Differentiable Subdivision Surface Fitting. arXiv preprint arXiv:2208.01685.
+
 
