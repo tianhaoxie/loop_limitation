@@ -9,7 +9,7 @@ https://arxiv.org/abs/2203.13333
 ## Install
 
 ```
-git clone https://github.com/tianhaoxie/loop_torch_cpp.git
+git clone --recurse-submodules https://github.com/tianhaoxie/loop_torch_cpp.git
 pip install -r requirements.txt
 pip install .
 ```
