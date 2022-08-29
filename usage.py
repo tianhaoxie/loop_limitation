@@ -16,12 +16,10 @@ f=m.faces_packed()
 lp.init_J(v,f)
 #get Jacobian matrix
 J = lp.get_J()
-
 #compute limit position
 l = lp.compute_limitation(v)
 
 save_obj("test.obj",l,f)
-
 
 
 

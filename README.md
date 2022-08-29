@@ -33,9 +33,9 @@ where the v is the vertices, and f is the faces. To be noted that the v and f mu
 will be on the same device as the input.
 The computed Jacobian matrix can be got by
 ```
-J = lp.get_J(True/False)
+J = lp.get_J()
 ```
-where True means that returns a matrix on CUDA.
+The device is same as the input.
 ```
 l = lp.compute_limitation(v)
 ```
