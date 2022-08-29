@@ -23,10 +23,8 @@ public:
     pointCollect* pc_;
     pointEvaluate* pe_;
     const Eigen::MatrixXi& F_;
-    torch::Tensor F_t;
     void compute_J( Eigen::SparseMatrix<double>& J);
     void compute(const Eigen::MatrixXd& V,Eigen::MatrixXd& result);
-    torch::Tensor compute_tensor(const torch::Tensor& V);
 };
 }
 #endif /* limitationSurfaceComputation_hpp */
