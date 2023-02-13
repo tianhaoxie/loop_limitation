@@ -9,6 +9,7 @@
 #include <iostream>
 #include <Eigen/Core>
 #include <Eigen/Sparse>
+typedef Eigen::Triplet<double> T;
 using namespace std;
 namespace LLPE{
 limitationSurfaceComputation::limitationSurfaceComputation(pointCollect* pc, pointEvaluate* pe,const Eigen::MatrixXi& F):pc_(pc),pe_(pe),F_(F){}
@@ -25,6 +26,7 @@ void limitationSurfaceComputation::compute_J(Eigen::SparseMatrix<double>& J){
     Eigen::Vector3d temp;
     int N,K;
     Eigen::Vector3d deriv;
+    std::vector<T> tripleList;
     for (int i =0; i<F_.rows();++i){
         std::vector<int> collectedPoints;
         Eigen::Map<Eigen::RowVectorXi>(&facePoints[0], 1, F_.cols()) = F_.row(i);
@@ -42,7 +44,8 @@ void limitationSurfaceComputation::compute_J(Eigen::SparseMatrix<double>& J){
                     for (int k=0;k<collectedPoints.size();++k){
                         K=collectedPoints[k];
                         double d=b(k);
-                        J.insert(N,K)=d;
+                        tripleList.push_back(T(N,K,d));
+                        //J.insert(N,K)=d;
                     }
                     completeFlag[facePoints[j]]=1;
                 }
@@ -73,7 +76,8 @@ void limitationSurfaceComputation::compute_J(Eigen::SparseMatrix<double>& J){
                         C[k][2]=1;
                         pe_ -> ProjectPoints(Cp, C, collectedPoints.size()-6);
                         pe_ -> evalSurf(deriv,Cp,bary[j][1],bary[j][2],collectedPoints.size()-6);
-                        J.insert(N,K)=deriv[0];
+                        //J.insert(N,K)=deriv[0];
+                        tripleList.push_back(T(N,K,deriv[0]));
                         C[k][0]=0;
                         C[k][1]=0;
                         C[k][2]=0;
@@ -83,7 +87,8 @@ void limitationSurfaceComputation::compute_J(Eigen::SparseMatrix<double>& J){
             }
         }
     }
-    }
+    J.setFromTriplets(tripleList.begin(),tripleList.end());
+}
 
 //compute limited positions
 void limitationSurfaceComputation::compute(const Eigen::MatrixXd& V,Eigen::MatrixXd& result){
